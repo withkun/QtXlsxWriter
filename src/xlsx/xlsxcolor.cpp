@@ -112,7 +112,11 @@ bool XlsxColor::loadFromXml(QXmlStreamReader &reader)
 
 XlsxColor::operator QVariant() const
 {
+#if QT_VERSION >= 0x060000
     return QVariant(QMetaType(qMetaTypeId<XlsxColor>()), this);
+#else
+    return QVariant(qMetaTypeId<XlsxColor>(), this);
+#endif
 }
 
 QColor XlsxColor::fromARGBString(const QString &c)

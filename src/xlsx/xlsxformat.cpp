@@ -27,6 +27,7 @@
 #include "xlsxcolor_p.h"
 #include "xlsxnumformatparser_p.h"
 #include <QDataStream>
+#include <QIODevice>
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE_XLSX
@@ -546,7 +547,7 @@ QByteArray Format::fontKey() const
 
     if (d->font_dirty) {
         QByteArray key;
-        QDataStream stream(&key, QIODeviceBase::WriteOnly);
+        QDataStream stream(&key, QIODevice::WriteOnly);
         for (int i = FormatPrivate::P_Font_STARTID; i < FormatPrivate::P_Font_ENDID; ++i) {
             if (d->properties.contains(i))
                 stream << i << d->properties[i];
@@ -957,7 +958,7 @@ QByteArray Format::borderKey() const
 
     if (d->border_dirty) {
         QByteArray key;
-        QDataStream stream(&key, QIODeviceBase::WriteOnly);
+        QDataStream stream(&key, QIODevice::WriteOnly);
         for (int i = FormatPrivate::P_Border_STARTID; i < FormatPrivate::P_Border_ENDID; ++i) {
             if (d->properties.contains(i))
                 stream << i << d->properties[i];
@@ -1077,7 +1078,7 @@ QByteArray Format::fillKey() const
 
     if (d->fill_dirty) {
         QByteArray key;
-        QDataStream stream(&key, QIODeviceBase::WriteOnly);
+        QDataStream stream(&key, QIODevice::WriteOnly);
         for (int i = FormatPrivate::P_Fill_STARTID; i < FormatPrivate::P_Fill_ENDID; ++i) {
             if (d->properties.contains(i))
                 stream << i << d->properties[i];
@@ -1203,7 +1204,7 @@ QByteArray Format::formatKey() const
 
     if (d->dirty) {
         QByteArray key;
-        QDataStream stream(&key, QIODeviceBase::WriteOnly);
+        QDataStream stream(&key, QIODevice::WriteOnly);
 
         QMapIterator<int, QVariant> i(d->properties);
         while (i.hasNext()) {

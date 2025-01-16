@@ -126,6 +126,9 @@ public:
     Format columnFormat(int column);
     bool isColumnHidden(int column);
 
+    void setFrozenRows(int rows);
+    void setFrozenColumns(int cols);
+
     bool setRowHeight(int rowFirst, int rowLast, double height);
     bool setRowFormat(int rowFirst, int rowLast, const Format &format);
     bool setRowHidden(int rowFirst, int rowLast, bool hidden);

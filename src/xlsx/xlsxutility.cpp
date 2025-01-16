@@ -33,6 +33,7 @@
 #include <QColor>
 #include <QDateTime>
 #include <QDebug>
+#include <QStringList>
 
 namespace QXlsx {
 

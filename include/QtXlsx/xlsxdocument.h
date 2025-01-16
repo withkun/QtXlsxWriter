@@ -82,6 +82,9 @@ public:
     Format columnFormat(int column);
     bool isColumnHidden(int column);
 
+    bool setFrozenRows(int rows);
+    bool setFrozenColumns(int cols);
+
     bool setRowHeight(int row, double height);
     bool setRowFormat(int row, const Format &format);
     bool setRowHidden(int row, bool hidden);

@@ -93,7 +93,7 @@ set(XLSX_SOURCES
     src/xlsx/xlsxcellformula.cpp
 )
 
-qt_add_library(QtXlsx STATIC
+add_library(QtXlsx STATIC
     ${XLSX_HEADERS}
     ${XLSX_HEADERS_PRIVATE}
     ${XLSX_SOURCES}

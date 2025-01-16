@@ -674,6 +674,22 @@ bool Document::isColumnHidden(int column)
     return false;
 }
 
+bool Document::setFrozenRows(int rows) {
+    if (Worksheet *sheet = currentWorksheet()) {
+        sheet->setFrozenRows(rows);
+        return true;
+    }
+    return false;
+}
+
+bool Document::setFrozenColumns(int cols) {
+    if (Worksheet *sheet = currentWorksheet()) {
+        sheet->setFrozenColumns(cols);
+        return true;
+    }
+    return false;
+}
+
 /*!
   Sets the \a format of the \a row.
   Rows are 1-indexed.

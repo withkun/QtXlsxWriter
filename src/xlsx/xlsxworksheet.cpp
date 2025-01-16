@@ -54,6 +54,7 @@
 #include <QXmlStreamReader>
 #include <QTextDocument>
 #include <QDir>
+#include <QFontMetrics>
 
 #include <math.h>
 
@@ -195,6 +196,8 @@ Worksheet::Worksheet(const QString &name, int id, Workbook *workbook, CreateFlag
 {
     if (!workbook) // For unit test propose only. Ignore the memery leak.
         d_func()->workbook = new Workbook(flag);
+    d_func()->frozen_rows = 0;
+    d_func()->frozen_cols = 0;
 }
 
 /*!
@@ -1111,6 +1114,20 @@ bool Worksheet::insertImage(int row, int column, QSize size, const QImage &image
     anchor->ext = size * 9525;
 
     anchor->setObjectPicture(image);
+
+    // 调整单元格大小适配图像显示
+    QFont font = cellAt(row, column)->format().font();
+    QFontMetrics fm(font);
+    QRect rect = fm.boundingRect("A");
+    int boundWidth = rect.width();
+
+    // 宽度单位是字符宽度
+    //write(2, 2, "AAAAA", format_img);
+    setColumnWidth(column+1, column+1, size.width() * 0.97 / boundWidth);
+
+    // 高度单位是点,1pix等于3/4点
+    setRowHeight(row+1, row+1, size.height() * 0.75);
+
     return true;
 }
 
@@ -1131,7 +1148,7 @@ bool Worksheet::insertImage(QPoint star, QSize size, const QImage &image)
 
 }
 
-bool Worksheet::insertImage(QPoint star ,const QImage &image)
+bool Worksheet::insertImage(QPoint star, const QImage &image)
 {
     Q_D(Worksheet);
 
@@ -1295,6 +1312,19 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     if (!d->showWhiteSpace)
         writer.writeAttribute(QStringLiteral("showWhiteSpace"), QStringLiteral("0"));
     writer.writeAttribute(QStringLiteral("workbookViewId"), QStringLiteral("0"));
+
+    if (d->frozen_cols > 0 || d->frozen_rows > 0) {
+        writer.writeStartElement(QStringLiteral("pane"));
+        if (d->frozen_cols > 0)
+            writer.writeAttribute(QStringLiteral("xSplit"), QString::number(d->frozen_cols));//指定固定列的数量
+        if (d->frozen_rows > 0)
+            writer.writeAttribute(QStringLiteral("ySplit"), QString::number(d->frozen_rows));//指定固定行数
+        writer.writeAttribute(QStringLiteral("topLeftCell"), CellReference(d->frozen_rows + 1, d->frozen_cols + 1).toString());// 必须指定区域后面的下一个单元格
+        writer.writeAttribute(QStringLiteral("activePane"), QStringLiteral("bottomRight"));
+        writer.writeAttribute(QStringLiteral("state"), QStringLiteral("frozenSplit"));
+        writer.writeEndElement();//pane
+    }
+
     writer.writeEndElement(); // sheetView
     writer.writeEndElement(); // sheetViews
 
@@ -1785,6 +1815,16 @@ bool Worksheet::isColumnHidden(int column)
         return columnInfoList.at(0)->hidden;
 
     return false;
+}
+
+void Worksheet::setFrozenRows(int rows) {
+    Q_D(Worksheet);
+    d->frozen_rows = rows;
+}
+
+void Worksheet::setFrozenColumns(int cols) {
+    Q_D(Worksheet);
+    d->frozen_cols = cols;
 }
 
 /*!
@@ -2288,6 +2328,12 @@ void WorksheetPrivate::loadXmlSheetViews(QXmlStreamReader &reader)
             showOutlineSymbols =
                 attrs.value(QLatin1String("showOutlineSymbols")) != QLatin1String("0");
             showWhiteSpace = attrs.value(QLatin1String("showWhiteSpace")) != QLatin1String("0");
+        }
+        if (reader.tokenType() == QXmlStreamReader::StartElement
+            && reader.name() == QLatin1String("pane")) {
+            const QXmlStreamAttributes attrs = reader.attributes();
+            frozen_cols = attrs.value(QLatin1String("xSplit")).toString().toInt();
+            frozen_rows = attrs.value(QLatin1String("ySplit")).toString().toInt();
         }
     }
 }

@@ -216,6 +216,9 @@ public:
     int default_row_height;
     bool default_row_zeroed;
 
+    int frozen_rows;
+    int frozen_cols;
+
     XlsxSheetFormatProps sheetFormatProps;
 
     bool windowProtection;
